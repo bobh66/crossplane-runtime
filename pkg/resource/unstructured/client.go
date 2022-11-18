@@ -54,11 +54,11 @@ type WrapperClient struct {
 // Get retrieves an obj for the given object key from the Kubernetes Cluster.
 // obj must be a struct pointer so that obj can be updated with the response
 // returned by the Server.
-func (c *WrapperClient) Get(ctx context.Context, key client.ObjectKey, obj client.Object) error {
+func (c *WrapperClient) Get(ctx context.Context, key client.ObjectKey, obj client.Object, opts ...client.GetOption) error {
 	if u, ok := obj.(Wrapper); ok {
-		return c.kube.Get(ctx, key, u.GetUnstructured())
+		return c.kube.Get(ctx, key, u.GetUnstructured(), opts...)
 	}
-	return c.kube.Get(ctx, key, obj)
+	return c.kube.Get(ctx, key, obj, opts...)
 }
 
 // List retrieves list of objects for a given namespace and list options. On a
