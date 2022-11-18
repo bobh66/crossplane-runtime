@@ -54,11 +54,11 @@ type WrapperClient struct {
 // Get retrieves an obj for the given object key from the Kubernetes Cluster.
 // obj must be a struct pointer so that obj can be updated with the response
 // returned by the Server.
-func (c *WrapperClient) Get(ctx context.Context, key client.ObjectKey, obj client.Object) error {
+func (c *WrapperClient) Get(ctx context.Context, key client.ObjectKey, obj client.Object, opts ...client.GetOption) error {
 	if u, ok := obj.(Wrapper); ok {
-		return c.kube.Get(ctx, key, u.GetUnstructured())
+		return c.kube.Get(ctx, key, u.GetUnstructured(), opts...)
 	}
-	return c.kube.Get(ctx, key, obj)
+	return c.kube.Get(ctx, key, obj, opts...)
 }
 
 // List retrieves list of objects for a given namespace and list options. On a
@@ -134,10 +134,20 @@ type wrapperStatusClient struct {
 	kube client.StatusWriter
 }
 
+// Create adds the status subresource for the given obj.
+// obj must be a struct pointer so that obj can be updated
+// with the content returned by the Server.
+func (c *wrapperStatusClient) Create(ctx context.Context, obj client.Object, subResource client.Object, opts ...client.SubResourceCreateOption) error {
+	if u, ok := obj.(Wrapper); ok {
+		return c.kube.Create(ctx, u.GetUnstructured(), subResource, opts...)
+	}
+	return c.kube.Create(ctx, obj, subResource, opts...)
+}
+
 // Update updates the fields corresponding to the status subresource for the
 // given obj. obj must be a struct pointer so that obj can be updated
 // with the content returned by the Server.
-func (c *wrapperStatusClient) Update(ctx context.Context, obj client.Object, opts ...client.UpdateOption) error {
+func (c *wrapperStatusClient) Update(ctx context.Context, obj client.Object, opts ...client.SubResourceUpdateOption) error {
 	if u, ok := obj.(Wrapper); ok {
 		return c.kube.Update(ctx, u.GetUnstructured(), opts...)
 	}
@@ -147,7 +157,7 @@ func (c *wrapperStatusClient) Update(ctx context.Context, obj client.Object, opt
 // Patch patches the given object's subresource. obj must be a struct
 // pointer so that obj can be updated with the content returned by the
 // Server.
-func (c *wrapperStatusClient) Patch(ctx context.Context, obj client.Object, patch client.Patch, opts ...client.PatchOption) error {
+func (c *wrapperStatusClient) Patch(ctx context.Context, obj client.Object, patch client.Patch, opts ...client.SubResourcePatchOption) error {
 	if u, ok := obj.(Wrapper); ok {
 		return c.kube.Patch(ctx, u.GetUnstructured(), patch, opts...)
 	}
