@@ -134,6 +134,11 @@ type wrapperStatusClient struct {
 	kube client.StatusWriter
 }
 
+// SubResource returns the SubResource client for the specified subResource
+func (c *WrapperClient) SubResource(subResource string) client.SubResourceClient {
+	return c.kube.SubResource(subResource)
+}
+
 // Create adds the status subresource for the given obj.
 // obj must be a struct pointer so that obj can be updated
 // with the content returned by the Server.
